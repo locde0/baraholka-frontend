@@ -1,0 +1,27 @@
+services:
+  frontend:
+    image: ${FRONTEND_IMAGE:-baraholka-frontend:local}
+    build: .
+    container_name: frontend
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - baraholka_static:/vol/static:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - baraholka-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-check-certificate -q --spider https://127.0.0.1:443/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  baraholka_static:
+    external: true
+
+networks:
+  baraholka-net:
+    external: true
